@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn Italian</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Source+Sans+3:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    .font-display { font-family: 'Playfair Display', serif; }
+    .font-body { font-family: 'Source Sans 3', sans-serif; }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.5); }
+    }
+    
+    .animate-fade-in { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-fade-in-delay-1 { animation: fadeInUp 0.6s ease-out 0.1s forwards; opacity: 0; }
+    .animate-fade-in-delay-2 { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
+    .animate-fade-in-delay-3 { animation: fadeInUp 0.6s ease-out 0.3s forwards; opacity: 0; }
+    
+    .lesson-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .lesson-card:hover { transform: translateY(-4px); }
+    
+    .correct-answer { animation: pulse-glow 1s ease-in-out; }
+    
+    .progress-fill { transition: width 0.5s ease-out; }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full font-body">
+  <div id="app" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);"><!-- Navigation -->
+   <nav class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-700/50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+     <div class="flex items-center gap-3"><span class="text-3xl">🇮🇹</span>
+      <h1 id="nav-title" class="font-display text-xl font-semibold text-white">Impara l'Italiano</h1>
+     </div>
+     <div class="flex items-center gap-4">
+      <div id="progress-container" class="hidden sm:flex items-center gap-2"><span class="text-slate-400 text-sm">Progress:</span>
+       <div class="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+        <div id="total-progress" class="progress-fill h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style="width: 0%"></div>
+       </div><span id="progress-text" class="text-emerald-400 text-sm font-medium">0%</span>
+      </div>
+     </div>
+    </div>
+   </nav><!-- Main Content -->
+   <main class="max-w-6xl mx-auto px-6 py-8"><!-- Hero Section -->
+    <section id="hero" class="text-center py-12 animate-fade-in">
+     <h2 id="welcome-title" class="font-display text-4xl md:text-5xl font-bold text-white mb-4">Benvenuto!</h2>
+     <p id="welcome-subtitle" class="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto mb-8">Start your journey to speaking beautiful Italian. Learn essential phrases, vocabulary, and grammar through interactive lessons.</p>
+     <div class="flex justify-center gap-4 flex-wrap"><button onclick="scrollToLessons()" class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-full hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:shadow-green-500/25"> Start Learning </button>
+     </div>
+    </section><!-- Lessons Grid -->
+    <section id="lessons-section" class="py-8">
+     <h3 class="font-display text-2xl font-semibold text-white mb-6 animate-fade-in-delay-1">📚 Lessons</h3>
+     <div id="lessons-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Lessons will be rendered here -->
+     </div>
+    </section><!-- Active Lesson View -->
+    <section id="lesson-view" class="hidden py-8"><button onclick="closeLessonView()" class="mb-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg> Back to Lessons </button>
+     <div id="lesson-content" class="bg-slate-800/50 backdrop-blur rounded-2xl p-8 border border-slate-700/50"><!-- Lesson content will be rendered here -->
+     </div>
+    </section><!-- Quick Reference -->
+    <section class="py-8 animate-fade-in-delay-3">
+     <h3 class="font-display text-2xl font-semibold text-white mb-6">🎯 Quick Reference</h3>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-slate-800/50 backdrop-blur rounded-xl p-6 border border-slate-700/50">
+       <h4 class="font-display text-lg font-semibold text-emerald-400 mb-4">Essential Phrases</h4>
+       <ul class="space-y-3">
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Ciao</span> <span class="text-slate-400">Hello / Goodbye</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Grazie</span> <span class="text-slate-400">Thank you</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Per favore</span> <span class="text-slate-400">Please</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Scusi</span> <span class="text-slate-400">Excuse me</span></li>
+       </ul>
+      </div>
+      <div class="bg-slate-800/50 backdrop-blur rounded-xl p-6 border border-slate-700/50">
+       <h4 class="font-display text-lg font-semibold text-amber-400 mb-4">Numbers 1-5</h4>
+       <ul class="space-y-3">
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Uno</span> <span class="text-slate-400">1</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Due</span> <span class="text-slate-400">2</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Tre</span> <span class="text-slate-400">3</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Quattro</span> <span class="text-slate-400">4</span></li>
+        <li class="flex justify-between items-center"><span class="text-white font-medium">Cinque</span> <span class="text-slate-400">5</span></li>
+       </ul>
+      </div>
+     </div>
+    </section>
+   </main><!-- Footer -->
+   <footer class="border-t border-slate-700/50 mt-12">
+    <div class="max-w-6xl mx-auto px-6 py-8 text-center">
+     <p class="text-slate-400">In bocca al lupo! 🐺 <span class="text-slate-500">(Good luck!)</span></p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    // Lesson Data
+    const lessons = [
+      {
+        id: 'greetings',
+        title: 'Greetings',
+        emoji: '👋',
+        description: 'Learn how to say hello, goodbye, and introduce yourself.',
+        level: 'Beginner',
+        color: 'from-green-500 to-emerald-500',
+        questions: [
+          { question: 'How do you say "Hello" in Italian?', options: ['Ciao', 'Grazie', 'Arrivederci', 'Buongiorno'], correct: 0 },
+          { question: 'What does "Buongiorno" mean?', options: ['Good night', 'Good morning/day', 'Goodbye', 'Thank you'], correct: 1 },
+          { question: 'How do you say "Goodbye" formally?', options: ['Ciao', 'Salve', 'Arrivederci', 'Buonasera'], correct: 2 },
+          { question: 'What is "Good evening" in Italian?', options: ['Buongiorno', 'Buonanotte', 'Buonasera', 'Ciao'], correct: 2 }
+        ]
+      },
+      {
+        id: 'numbers',
+        title: 'Numbers 1-10',
+        emoji: '🔢',
+        description: 'Count from one to ten in Italian.',
+        level: 'Beginner',
+        color: 'from-blue-500 to-indigo-500',
+        questions: [
+          { question: 'What is "three" in Italian?', options: ['Due', 'Tre', 'Quattro', 'Cinque'], correct: 1 },
+          { question: 'How do you say "seven"?', options: ['Sei', 'Sette', 'Otto', 'Nove'], correct: 1 },
+          { question: 'What number is "dieci"?', options: ['8', '9', '10', '11'], correct: 2 },
+          { question: 'What is "five" in Italian?', options: ['Quattro', 'Cinque', 'Sei', 'Sette'], correct: 1 }
+        ]
+      },
+      {
+        id: 'food',
+        title: 'Food & Drinks',
+        emoji: '🍕',
+        description: 'Order food and drinks like a local.',
+        level: 'Beginner',
+        color: 'from-amber-500 to-orange-500',
+        questions: [
+          { question: 'What is "water" in Italian?', options: ['Vino', 'Acqua', 'Caffè', 'Birra'], correct: 1 },
+          { question: 'How do you say "coffee"?', options: ['Tè', 'Latte', 'Caffè', 'Succo'], correct: 2 },
+          { question: 'What does "il conto" mean?', options: ['The menu', 'The bill', 'The tip', 'The waiter'], correct: 1 },
+          { question: 'How do you say "I would like..."?', options: ['Voglio', 'Vorrei', 'Ho', 'Sono'], correct: 1 }
+        ]
+      },
+      {
+        id: 'colors',
+        title: 'Colors',
+        emoji: '🎨',
+        description: 'Learn the colors of the Italian flag and more.',
+        level: 'Beginner',
+        color: 'from-pink-500 to-rose-500',
+        questions: [
+          { question: 'What is "red" in Italian?', options: ['Blu', 'Verde', 'Rosso', 'Giallo'], correct: 2 },
+          { question: 'How do you say "white"?', options: ['Nero', 'Bianco', 'Grigio', 'Marrone'], correct: 1 },
+          { question: 'What color is "verde"?', options: ['Yellow', 'Blue', 'Green', 'Orange'], correct: 2 },
+          { question: 'What is "black" in Italian?', options: ['Bianco', 'Nero', 'Blu', 'Viola'], correct: 1 }
+        ]
+      },
+      {
+        id: 'family',
+        title: 'Family',
+        emoji: '👨‍👩‍👧‍👦',
+        description: 'Talk about your family members.',
+        level: 'Intermediate',
+        color: 'from-purple-500 to-violet-500',
+        questions: [
+          { question: 'What is "mother" in Italian?', options: ['Padre', 'Madre', 'Sorella', 'Fratello'], correct: 1 },
+          { question: 'How do you say "brother"?', options: ['Fratello', 'Sorella', 'Nonno', 'Zio'], correct: 0 },
+          { question: 'What does "nonni" mean?', options: ['Parents', 'Grandparents', 'Children', 'Cousins'], correct: 1 },
+          { question: 'What is "daughter" in Italian?', options: ['Figlio', 'Figlia', 'Nipote', 'Zia'], correct: 1 }
+        ]
+      },
+      {
+        id: 'verbs',
+        title: 'Common Verbs',
+        emoji: '📝',
+        description: 'Essential verbs for everyday conversation.',
+        level: 'Intermediate',
+        color: 'from-teal-500 to-cyan-500',
+        questions: [
+          { question: 'What does "essere" mean?', options: ['To have', 'To be', 'To go', 'To do'], correct: 1 },
+          { question: 'How do you say "I am" (essere)?', options: ['Ho', 'Sono', 'Vado', 'Faccio'], correct: 1 },
+          { question: 'What is "to eat" in Italian?', options: ['Bere', 'Dormire', 'Mangiare', 'Parlare'], correct: 2 },
+          { question: 'What does "andare" mean?', options: ['To come', 'To go', 'To stay', 'To leave'], correct: 1 }
+        ]
+      }
+    ];
+
+    // State
+    let userProgress = [];
+    let currentLesson = null;
+    let currentQuestionIndex = 0;
+    let currentScore = 0;
+    let answeredQuestions = [];
+
+    // Default config
+    const defaultConfig = {
+      site_title: "Impara l'Italiano",
+      welcome_message: "Start your journey to speaking beautiful Italian",
+      background_color: "#1a1a2e",
+      card_color: "#1e293b",
+      text_color: "#f1f5f9",
+      primary_color: "#22c55e",
+      accent_color: "#f59e0b"
+    };
+
+    // Initialize SDKs
+    async function initApp() {
+      // Initialize Element SDK
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            applyConfig(config);
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.background_color || defaultConfig.background_color,
+                set: (v) => window.elementSdk.setConfig({ background_color: v })
+              },
+              {
+                get: () => config.card_color || defaultConfig.card_color,
+                set: (v) => window.elementSdk.setConfig({ card_color: v })
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (v) => window.elementSdk.setConfig({ text_color: v })
+              },
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (v) => window.elementSdk.setConfig({ primary_color: v })
+              },
+              {
+                get: () => config.accent_color || defaultConfig.accent_color,
+                set: (v) => window.elementSdk.setConfig({ accent_color: v })
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || 'Playfair Display',
+              set: (v) => window.elementSdk.setConfig({ font_family: v })
+            },
+            fontSizeable: {
+              get: () => config.font_size || 16,
+              set: (v) => window.elementSdk.setConfig({ font_size: v })
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['site_title', config.site_title || defaultConfig.site_title],
+            ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
+          ])
+        });
+      }
+
+      // Initialize Data SDK
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init({
+          onDataChanged: (data) => {
+            userProgress = data;
+            renderLessons();
+            updateTotalProgress();
+          }
+        });
+        if (!result.isOk) {
+          console.error('Failed to initialize data SDK');
+        }
+      }
+
+      renderLessons();
+    }
+
+    function applyConfig(config) {
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const cardColor = config.card_color || defaultConfig.card_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryColor = config.primary_color || defaultConfig.primary_color;
+      const accentColor = config.accent_color || defaultConfig.accent_color;
+      const fontFamily = config.font_family || 'Playfair Display';
+      const fontSize = config.font_size || 16;
+
+      // Apply colors
+      document.getElementById('app').style.background = `linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, 20)} 50%, ${adjustColor(bgColor, 40)} 100%)`;
+      
+      // Apply text
+      document.getElementById('nav-title').textContent = config.site_title || defaultConfig.site_title;
+      document.getElementById('welcome-subtitle').textContent = config.welcome_message || defaultConfig.welcome_message;
+
+      // Apply font
+      document.querySelectorAll('.font-display').forEach(el => {
+        el.style.fontFamily = `${fontFamily}, serif`;
+      });
+
+      // Apply font size
+      document.getElementById('welcome-title').style.fontSize = `${fontSize * 2.5}px`;
+      document.getElementById('welcome-subtitle').style.fontSize = `${fontSize * 1.125}px`;
+    }
+
+    function adjustColor(hex, amount) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+    }
+
+    function renderLessons() {
+      const grid = document.getElementById('lessons-grid');
+      grid.innerHTML = lessons.map((lesson, index) => {
+        const progress = userProgress.find(p => p.lesson_id === lesson.id);
+        const isCompleted = progress?.completed;
+        const score = progress?.score || 0;
+
+        return `
+          <div class="lesson-card bg-slate-800/50 backdrop-blur rounded-xl border border-slate-700/50 overflow-hidden cursor-pointer animate-fade-in-delay-${Math.min(index + 1, 3)}" onclick="startLesson('${lesson.id}')">
+            <div class="h-2 bg-gradient-to-r ${lesson.color}"></div>
+            <div class="p-6">
+              <div class="flex items-start justify-between mb-4">
+                <span class="text-4xl">${lesson.emoji}</span>
+                ${isCompleted ? `
+                  <span class="flex items-center gap-1 text-emerald-400 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    ${score}%
+                  </span>
+                ` : `
+                  <span class="px-2 py-1 text-xs font-medium rounded-full ${lesson.level === 'Beginner' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}">${lesson.level}</span>
+                `}
+              </div>
+              <h4 class="font-display text-xl font-semibold text-white mb-2">${lesson.title}</h4>
+              <p class="text-slate-400 text-sm">${lesson.description}</p>
+              <div class="mt-4 flex items-center gap-2 text-sm">
+                <span class="text-slate-500">${lesson.questions.length} questions</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateTotalProgress() {
+      const completedLessons = userProgress.filter(p => p.completed).length;
+      const percentage = Math.round((completedLessons / lessons.length) * 100);
+      
+      document.getElementById('total-progress').style.width = `${percentage}%`;
+      document.getElementById('progress-text').textContent = `${percentage}%`;
+      
+      if (completedLessons > 0) {
+        document.getElementById('progress-container').classList.remove('hidden');
+        document.getElementById('progress-container').classList.add('flex');
+      }
+    }
+
+    function startLesson(lessonId) {
+      currentLesson = lessons.find(l => l.id === lessonId);
+      currentQuestionIndex = 0;
+      currentScore = 0;
+      answeredQuestions = [];
+
+      document.getElementById('lessons-section').classList.add('hidden');
+      document.getElementById('hero').classList.add('hidden');
+      document.getElementById('lesson-view').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const content = document.getElementById('lesson-content');
+      const question = currentLesson.questions[currentQuestionIndex];
+      const totalQuestions = currentLesson.questions.length;
+      const progress = ((currentQuestionIndex) / totalQuestions) * 100;
+
+      content.innerHTML = `
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-4xl">${currentLesson.emoji}</span>
+            <span class="text-slate-400 text-sm">Question ${currentQuestionIndex + 1} of ${totalQuestions}</span>
+          </div>
+          <h3 class="font-display text-2xl font-semibold text-white mb-2">${currentLesson.title}</h3>
+          <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+            <div class="progress-fill h-full bg-gradient-to-r ${currentLesson.color} rounded-full" style="width: ${progress}%"></div>
+          </div>
+        </div>
+        
+        <div class="py-8">
+          <h4 class="text-xl text-white font-medium mb-6">${question.question}</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="options-container">
+            ${question.options.map((option, index) => `
+              <button onclick="selectAnswer(${index})" class="option-btn p-4 text-left rounded-xl border-2 border-slate-600 bg-slate-700/50 text-white hover:border-slate-500 hover:bg-slate-700 transition-all">
+                <span class="inline-block w-8 h-8 rounded-full bg-slate-600 text-center leading-8 mr-3 text-sm font-medium">${String.fromCharCode(65 + index)}</span>
+                ${option}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectAnswer(selectedIndex) {
+      const question = currentLesson.questions[currentQuestionIndex];
+      const isCorrect = selectedIndex === question.correct;
+      const buttons = document.querySelectorAll('.option-btn');
+
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:border-slate-500', 'hover:bg-slate-700');
+        
+        if (index === question.correct) {
+          btn.classList.remove('border-slate-600', 'bg-slate-700/50');
+          btn.classList.add('border-emerald-500', 'bg-emerald-500/20', 'correct-answer');
+        } else if (index === selectedIndex && !isCorrect) {
+          btn.classList.remove('border-slate-600', 'bg-slate-700/50');
+          btn.classList.add('border-red-500', 'bg-red-500/20');
+        }
+      });
+
+      if (isCorrect) {
+        currentScore++;
+      }
+
+      answeredQuestions.push({ questionIndex: currentQuestionIndex, correct: isCorrect });
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < currentLesson.questions.length) {
+          renderQuestion();
+        } else {
+          showResults();
+        }
+      }, 1200);
+    }
+
+    async function showResults() {
+      const content = document.getElementById('lesson-content');
+      const percentage = Math.round((currentScore / currentLesson.questions.length) * 100);
+      const isPassing = percentage >= 70;
+
+      content.innerHTML = `
+        <div class="text-center py-8">
+          <div class="text-6xl mb-4">${isPassing ? '🎉' : '📚'}</div>
+          <h3 class="font-display text-3xl font-bold text-white mb-2">
+            ${isPassing ? 'Ottimo lavoro!' : 'Keep practicing!'}
+          </h3>
+          <p class="text-slate-400 mb-6">${isPassing ? 'Great work!' : 'You\'ll get it next time!'}</p>
+          
+          <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-r ${currentLesson.color} mb-6">
+            <span class="text-4xl font-bold text-white">${percentage}%</span>
+          </div>
+          
+          <p class="text-slate-300 mb-8">
+            You got <span class="text-white font-semibold">${currentScore}</span> out of <span class="text-white font-semibold">${currentLesson.questions.length}</span> questions correct.
+          </p>
+          
+          <div class="flex justify-center gap-4 flex-wrap">
+            <button onclick="startLesson('${currentLesson.id}')" class="px-6 py-3 bg-slate-700 text-white font-medium rounded-full hover:bg-slate-600 transition-colors">
+              Try Again
+            </button>
+            <button onclick="closeLessonView()" class="px-6 py-3 bg-gradient-to-r ${currentLesson.color} text-white font-medium rounded-full hover:opacity-90 transition-opacity">
+              Continue Learning
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Save progress
+      if (window.dataSdk) {
+        const existingProgress = userProgress.find(p => p.lesson_id === currentLesson.id);
+        
+        if (existingProgress) {
+          if (percentage > existingProgress.score) {
+            const updateResult = await window.dataSdk.update({
+              ...existingProgress,
+              score: percentage,
+              completed: true,
+              completed_at: new Date().toISOString()
+            });
+            if (!updateResult.isOk) {
+              console.error('Failed to update progress');
+            }
+          }
+        } else {
+          if (userProgress.length >= 999) {
+            console.error('Maximum records reached');
+            return;
+          }
+          const createResult = await window.dataSdk.create({
+            lesson_id: currentLesson.id,
+            completed: true,
+            score: percentage,
+            completed_at: new Date().toISOString()
+          });
+          if (!createResult.isOk) {
+            console.error('Failed to save progress');
+          }
+        }
+      }
+    }
+
+    function closeLessonView() {
+      document.getElementById('lesson-view').classList.add('hidden');
+      document.getElementById('lessons-section').classList.remove('hidden');
+      document.getElementById('hero').classList.remove('hidden');
+      currentLesson = null;
+    }
+
+    function scrollToLessons() {
+      document.getElementById('lessons-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Initialize
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9caa39de735050f1',t:'MTc3MDU0NDI2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
